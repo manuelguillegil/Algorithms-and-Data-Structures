@@ -1,0 +1,570 @@
+program buscaminas begin
+
+// 1era parte del programa funciona sin errores aparentes
+
+
+// Funciones y Procedimientos 
+
+// Procedimientos para leer los  valores de N, M y T
+
+// --- Procedimiento para leer las entradas del usuario
+
+proc lectura(inout N:int, inout M:int, inout T: int)
+{pre true  pre}//2<=N /\  N>=16 /\ 2<=M /\ M>=16 /\ T<=(N*M)/2
+{post true post}
+|[
+	writeln("Introduzca el valor de N y de M que van a representar el tamano de su buscamina(M y N deben ser mayores que 1 y menores que 17): ");
+	writeln("Introduzca el valor de N: ");
+	read(N);
+	writeln("Introduzca el valor de M: ");
+	read(M);
+
+	writeln("Ahora introduzca la cantidad de minas(No puede exceder N*M/2): ");
+	read(T);
+	
+]|
+
+//------------Lectura robusta -----------
+	
+proc lecturarob(inout N:int, inout M:int, inout T:int,out s: boolean)
+{pre true pre}
+{post (2<=N /\  N<=16 /\ 2<=M /\ M<=16 /\ T<=(N*M)/2 ) ==> true post}
+|[	
+	
+	lectura(N,M,T);
+	
+	/*
+	{inv true inv}
+	{bound n-i bound}
+	do i<
+	*/
+	
+		if  2<=N /\  N<=16 /\ 2<=M /\ M<=16 /\ T<=(N*M)/2 ->
+			s:=true
+		[] 2>N \/  N>16 ->
+			writeln("N no esta entre 2 y 16");
+			s:= false
+		[] 2>M \/  M>16 ->
+			writeln("M no esta entre 2 y 16");
+			s:= false
+		[] T>(N*M)/2 ->
+			writeln("El numero de minas excede lo establecido");
+			s:= false
+		fi;
+	
+]|
+
+// Generador de tablero con los bordes incluidos
+
+proc tablero(in N : int, in M : int,in b: array[400,400] of int)
+{pre true pre}
+{post true post}
+
+|[
+	var i , j : int;
+	var abc_array: array[10] of char;
+	var a : array[1000, 1000] of char;
+	
+	// ---------------- TABLERO -----------------------------
+		
+	abc_array[0],abc_array[1],abc_array[2],abc_array[3],abc_array[4],abc_array[5]:='A','B','C','D','E','F';
+	
+	write("  ");
+
+	// ----------- ASIGNAMOS EL VALOR "#" A TODOS LOS ELEMENTOS DE LA MATRIZ -----	
+
+	i:= 0;
+	{inv true /* (% forall k:int| 0<=k /\ k<=i| (% forall l:int| 0<=l /\ l<=j|a[k,l] == '' %) %) /\ 0<=i /\ i<=N */ inv}
+	{bound N - i + 1 bound}
+		do i <= N ->
+			j:= 0;
+			{inv true inv}
+			{bound M - j + 1 bound}
+				do j <= M ->
+					if b[i,j] == -1 ->
+						a[i,j]:= '*';
+					[] b[i,j] == 0 ->
+						a[i,j]:= ' '
+					[] b[i,j] == 1 ->
+						a[i,j]:= '1'
+					[] b[i,j] == 2 ->
+						a[i,j]:= '2'
+					[] b[i,j] == 3 ->
+						a[i,j]:= '3'
+					[] b[i,j] == 4 ->
+						a[i,j]:= '4'
+					[] b[i,j] == 5 ->
+						a[i,j]:= '5'
+					[] b[i,j] == 6 ->
+						a[i,j]:= '6'
+					[] b[i,j] == 7 ->
+						a[i,j]:= '7'
+					[] b[i,j] == 8 ->
+						a[i,j]:= '8'
+					[] b[i,j] == 9 ->
+						a[i,j]:= '9'
+					[] !(b[i,j] < 10 /\ -2<b[i,j]) ->
+						skip			
+					fi;
+					
+					
+					j:= j + 1;
+				od;
+		i:= i + 1;
+		od;
+		
+	// ------------ BASE HORIZONTAL --------------------------
+
+	if (N <= 16) /\ (M <= 16) ->	
+	// ----------- NUMEROS MENORES O IGUALES A 9 -------------------
+		if (M <= 9) ->
+		
+			i := 0;
+			{inv true inv}
+			{bound M - i bound}	
+				do i < M ->		
+					write(" ", i);
+					i := i + 1		
+				od;
+	
+	// ---------- NUMEROS MAYORES A 9 Y MENORES A 16 ------------------------------
+		[] (M > 9) ->
+	
+			i := 0;
+			{inv true inv}
+			{bound 9 - i + 1 bound}	
+				do i <= 9 ->
+				write(" ",i);
+				i:= i + 1		
+				od;
+			
+			i := 0;
+			{inv true inv}
+			{bound M - i  bound}
+				do i < M - 10 ->
+					write(" ", abc_array[i]);
+					i:= i+1;
+				od;
+		fi;
+
+			i := 0;
+			writeln("");
+			write("  +");
+			{inv true inv}
+			{bound M - i bound}
+			do i < M  ->
+				write("--");
+				i:=i+1
+			od;
+			writeln();
+		
+	// ------------------ BASE VERTICAL ------------------------------------	
+	
+
+			if N<=9 ->
+	
+			i:=0;
+			{inv true inv}
+			{bound N - i bound}
+				do i < N ->
+					j:= 0;
+					write(i," |");
+						{inv true inv}
+						{bound M - j bound}
+							do j < M ->
+								write(a[i,j]," ");
+								j:= j + 1;
+							od;					
+					writeln();
+					i:=	i + 1
+			od;
+	
+			[] N > 9 ->
+	
+				i:=0;
+				{inv true inv}
+				{bound 9 -i +1 bound}
+					do i <= 9 ->
+					j:= 0;
+					write(i," |");
+						{inv true inv}
+						{bound M - j + 1 bound}
+							do j <= M ->
+								write(a[i,j]," ");
+								j:= j + 1;
+							od;					
+					writeln();
+					i:= i + 1
+					od;
+
+			i:=0;
+			{inv true inv}
+			{bound N-i bound}
+				do i < N-10 ->
+					j:= 0;
+					write(abc_array[i]," |");
+						{inv true inv}
+						{bound M - j + 1 bound}
+							do j < M + 1 ->
+								write(a[i,j]," ");
+								j:= j + 1;
+							od;					
+					writeln();
+					i:=i+1
+				od;
+			fi;
+		[] (N > 15) \/ (M > 15) -> writeln("Las dimensiones de N o M deben ser mayores a 15");
+		fi;
+	]|
+
+
+// ------------------- MÉTODO CONGRUENCIAL MIXTO ---------------
+// PROCESO MODIFICADO --- MAS POTENTE 
+
+proc fisher(in y: array[400] of int, in M: int, in N:int,out x: array[400] of int,in s:int,in T:int)
+{pre true pre}
+{post true post}
+|[	
+	var i,j:int;
+	i,j:=0,0;
+	{inv true /* (% forall k:int |  k == 0 | y[i] == s %) /\ (% forall k:int | k > 0 /\ k<0  | y[k] == ((y[k-1]*8121)+28411) mod 134456  %) /\ i>= 0 /\ i <= N*M */ inv}
+	{bound N*M-i bound}
+	do j<T ->
+		if i == 0 ->
+			y[i]:= s
+		[] i != 0 ->
+			y[i]:= ((y[i-1]*8121)+28411) mod 134456;
+			if x[y[i] mod (N*M)] == 0 -> 
+				x[y[i] mod (N*M)]:= 1;
+				j:=j+1
+			[] x[y[i] mod (N*M)] != 0 ->
+				skip
+			fi
+			
+		fi;
+		i:=i+1;
+	od;
+
+]|
+
+// ----------- GUARDAMOS LA CANTIDAD DE MINAS EN UN ARREGLO PARA LUEGO PERMUTARLO -----
+// ---- DESECHABLE ------
+proc arreglo(in N : int, in M : int, in T : int, out b: array[400] of int)
+{pre true pre}
+{post true post}
+|[
+	var k : int;
+	var i : int;
+	var j : int;
+	var t : int;
+
+i:= 0;
+j:= 0;
+k:= 0;
+
+	{inv true inv}
+	{bound N*M - i bound}
+		do i < N*M ->
+			if i < T -> b[i]:= 1;
+			[] i >= T -> b[i]:= 0;
+			fi;
+			i:= i + 1;
+		od;
+
+]|
+	
+// Transformo mi arreglo unidimensional en uno bidimensional
+// Transformo mi matriz de 0 Y 1 a una matriz booleana que es true donde haya minas y false donde no
+	
+proc transformacion(in N: int,in M:int,in valoresmatriz: array[400] of int,out e: array[400,400] of boolean)
+{pre true pre}
+{post true post}
+|[
+	
+	var i,j,k: int;
+	var c: array[400,400] of int;
+	k:=0;
+	i:=0;
+
+	{inv true inv}
+	{bound N*M - k bound}
+	do k < N*M ->
+
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+				c[i,j]:= valoresmatriz[k];
+			k:=k+1;
+			j:=j+1;
+		od;
+	i:=i+1;
+	od;
+	od;
+	
+	// writeln("La Matriz con las bombas asignadas será igual a: ");
+	
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+		//	write(c[i,j] ,"  ");
+			j:=j+1
+		od;
+		// writeln("");
+		i:=i+1;
+	od;
+	
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+			 if c[i,j] == 1 ->
+				e[i,j]:= true 
+			 [] c[i,j] == 0 ->
+				e[i,j]:= false
+			 []	c[i,j] != 1 /\ c[i,j] != 0 ->
+				skip
+			 fi;
+			 j:=j+1;
+		od;
+	i:=i+1
+	od;
+	
+	
+//	writeln("Así la matriz booleana es: ");
+
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+			// write(e[i,j] ,"  ");
+			j:=j+1
+		od;
+	//	writeln("");
+		i:=i+1;
+	od
+										
+]|
+	
+
+
+// Recorre en busca de  minas alrededor 
+proc recorremina(in ini : int, in inj : int, in fini : int, in finj : int, in c : array[400,400] of boolean, out d : int)
+{pre true pre}
+{post true post}
+|[	
+	
+	var i , j : int;
+
+	// Dado un elemento c[i,j], vamos a ver cuantas minas tiene adyacentes
+
+	i := ini;
+	{inv true inv}
+	{bound fini-i+1 bound}
+	do i <= fini ->
+		j := inj;
+		
+		{inv true inv}
+		{bound finj - j + 1 bound}
+		do j <= finj ->
+		if c[i,j] == true ->
+			d := d + 1
+		[] c[i,j] == false ->
+			skip;
+		fi;
+		j:=j+1;
+		od;
+	i:=i+1;
+	od;
+	
+]|
+
+
+// Establece las minas alrededor y cuanta cuantas hay y me devuelve una matriz con el numero de minas alrededor(BUG DE GRACIELA N)
+
+proc minasalrededor(in N: int, in M: int,in c: array[400,400] of boolean, out d:  array[400,400] of int)
+{pre true pre}
+{post true post}
+|[
+
+	var i,j,k,x: int;
+	i:=0;
+
+	//Supongamos que en cada posición de la matriz no hay ninguna bomba. Es decir, es "0" en todos los valores
+
+	{inv true inv}
+	{bound N - i + 1 bound}
+	do i <= N ->
+		j := 0;
+
+		{inv true inv}
+		{bound M - j + 1 bound}
+		do j <= M ->
+			d[i,j]:= 0;
+			j:= j + 1;
+		od;
+		i:= i + 1;
+	od;
+
+	// Evaluamos todos los casos, para las esquinas, para los bordes y pero el medio del tablero
+	
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+		if  c[i,j] == false ->
+			if i == 0 /\ j == 0 ->
+				x:= 0;
+				recorremina(i, j,i + 1,j + 1, c, x);
+				d[i,j]:= x;
+				 //writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[] i == 0 /\ (0 < j /\ j <= M) ->
+				x:= 0;
+				recorremina(i, j-1, i+1, j+1, c, x);
+				d[i,j]:= x;
+				 //writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[] (0 < i /\ i < N) /\ j == 0 ->
+				x:= 0;
+				recorremina(i-1, j , i+1, j+1, c, x);
+				d[i,j]:= x;
+			   // writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[]  i == M-1 /\ (0 < j /\ j < M) ->
+				x:= 0;
+				recorremina(i-1 , j, i, j+1, c, x);
+				d[i,j]:= x;
+				// writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[] 	i == M-1 /\ j == 0 ->
+				x:=0;
+				recorremina(i-1, j , i, j+1, c, x);
+				d[i,j]:= x;
+				// writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[]  i == M-1 /\ j == N-1 ->
+				x:=0;
+				recorremina(i-1 , j-1, i, j, c, x);
+				d[i,j]:= x;
+				// writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[]  j == N-1 /\  (0<i /\ i<=M) ->
+				x:=0;
+				recorremina(i-1,j-1,i+1,j,c,x);
+				d[i,j]:= x;
+				// writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[]  i == 0 /\ j == N-1 ->
+				x:=0;
+				recorremina(i,j-1,i+1,j,c,x);
+				d[i,j]:= x;
+				// writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			[] 	i != 0 /\ j != 0 /\ i != M - 1 /\ j != N-1 ->
+				x:=0;
+				recorremina(i-1,j-1,i+1,j+1,c,x);
+				d[i,j]:= x;
+				// writeln("Valor de d[",i,",",j,"]: ",d[i,j]);
+			fi;
+		[]	c[i,j] == true ->
+			d[i,j]:= -1
+		fi;
+		j:=j+1;
+		od;
+	i:=i+1;
+	od;
+	
+	
+	// Solo se usa para vision (Escribir la matriz resultante)
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+		// write(d[i,j], "  ");
+		j:=j+1;
+		od;
+	// writeln("");
+	i:=i+1;
+	od
+	
+		
+	]|
+
+
+main |[
+	// PRECONDICIONES 
+	// Variables basicas
+	var i,j:int;
+	// Matrices 
+	// Cantidad de minas alrededor de cada celda
+	var matriz_minas: array[400, 400] of int;
+	// Posiciones descubiertas
+	var matriz_descubiertas: array[1000, 1000] of boolean;
+	// Posiciones de las minas
+	var matriz_posminas: array[400, 400] of boolean;
+	var matriz_posminaspre: array[400,400] of int;
+	// Dimensiones del tablero y cantidad de minas
+	var valoresmatriz : array[400] of int;
+	var matriztemp: array[400] of int;
+	var N,M,T,X0: int;
+	// Variables para la semilla
+	var valid_coprimos: boolean;
+	var x0: int;
+	var x: array[100] of int;
+	var m:=134456  : int;
+	var a:=8121:int;
+	var c:= 28411:int;
+	// Variables de prueba
+	var d: array[100,100] of int;
+	var e: array[100,100] of boolean;
+	// Para parar el programa en el caso que se requiera
+	var stop: boolean;
+	
+	
+	// Entrada de datos por parte del usuario. Definimos las dimensiones del tablero
+	lecturarob(N,M,T,stop);
+	
+
+	
+if stop == true ->
+	// Proceso de generacion el tablero
+	
+	writeln("Introduzca un numero de semilla para generar el tablero: ");
+	read(x0);
+	fisher(matriztemp,M,N,valoresmatriz,x0,T);
+	
+	// Transformacion del arreglo unidimensional a bidimensional y transformacion a booleanos
+	transformacion(N,M,valoresmatriz,matriz_posminas);
+	
+	// Calculo de numero de minas adyacentes
+	minasalrededor(N,M,matriz_posminas,matriz_minas);
+	
+	// Generacion final del tablero 
+	
+	writeln("El tablero será de la forma: ");
+	tablero(N,M,matriz_minas);
+[] stop == false ->
+	writeln("");
+	writeln("No se puede ejecutar el programa")
+fi
+	
+
+]|
+end

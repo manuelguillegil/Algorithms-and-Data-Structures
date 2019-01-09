@@ -1,0 +1,62 @@
+program Palindrome begin
+main |[
+	var s: array[100] of int;
+	var i:=0 :  int;
+	var n: int;
+	var c: boolean;
+
+	writeln("Escriba un número n");
+	read(n);
+
+ 	{n > 0 /\ n < 100}
+
+	//Lectura del arreglo
+
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound n - i bound}
+
+	do i < n ->
+			read(s[i]);
+			i:= i + 1;
+	od;
+
+	i:= 0;
+
+	//Determinamos si la cadena de caracteres es un polindrome o no
+
+	
+		{inv (i >= 0) /\ (i <= n) /\ (% forall k: int | (k >= 0) /\ (k < i) | s[k] == s[(n -1) -k] %) inv}
+		{bound n -i bound}
+			do (i < n) -> 
+					if (s[i] == s[n -1 - i]) ->
+										c:= true; 
+					[] (s[i] != s[n -1 - i]) -> 
+										c:=false;
+										skip;
+					fi;
+					i:= i + 1;
+			od;		
+			i:= 0;
+
+		if (c==true) ->
+						{inv (i >= 0) /\ (i <= n) inv}
+						{bound n - i bound}
+							do (i < n) ->
+										write(s[i], " ");
+										i:= i + 1;
+										od;
+										write();
+										writeln("Es un Polindrome")
+		[] (c==false) ->
+						{inv (i >= 0) /\ (i <= n) inv}
+						{bound n - i bound}
+							do (i < n) ->
+										write(s[i], " ");
+										i:= i + 1;
+										od;
+										write();
+										writeln("No es un Polindrome")
+		fi;
+	{(% forall k: int | (k >= 0) /\ (k < i) | s[k] == s[(n -1) -k] %)}
+]|
+end

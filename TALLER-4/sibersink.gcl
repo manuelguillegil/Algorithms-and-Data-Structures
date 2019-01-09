@@ -1,0 +1,105 @@
+program trianguloco begin
+
+proc siberinski(in N: int, in M:int,ref m:array[1000,1000] of char,in x:int,in y:int)
+{pre true pre}
+{post true post}
+|[
+    var i,j:int;
+    
+    
+    
+    i:=0;
+    {inv true inv}
+    {bound N-i bound}
+    do i<N ->
+        j:=0;
+        {inv true inv}
+        {bound M-j bound}
+        do j<M ->
+        if i == x /\ j == y ->
+                    m[i,j]:= ' ';
+                    m[i,j+1],m[i+1,j]:= '/','/';
+                    m[i,j+2],m[i+1,j+3]:='\\','\\';
+                    m[i+1,j+1],m[i+1,j+2]:= '_','_';
+                       
+        []  i != x \/ j != y ->
+            skip
+        fi;
+        j:=j+1;
+    
+        od;
+        i:=i+1
+    od;
+    
+
+]|
+    
+proc sibersinkirec(in N: int,in M:int,ref m:array[1000,1000] of char,in k: int,in x:int, in y: int)
+{pre true pre}
+{post true post}
+{bound k bound}
+|[
+    
+    var i,p,f: int;
+    siberinski(N,M,m,x,y);
+    i:=2;
+    p:=2;
+    
+    {inv true inv}
+    {bound k-i+1 bound}
+    do i<=k ->  
+        sibersinkirec(N,M,m,i-1,x,y);
+        sibersinkirec(N,M,m,i-1,x+p,y+p);
+        sibersinkirec(N,M,m,i-1,x+p,y-p);
+        p:=p+2;
+        i:=i+1;
+    od;
+    
+     
+    
+    
+    
+]|
+
+main |[
+    var N,M,x,y,i,j,k: int;
+    var m: array[1000,1000] of char;
+    writeln("Ingrese las dimensiones de la matriz");
+    read(N,M);
+    writeln("ingrese el valor de su nivel");
+    read(k);
+    writeln(" ingrese sus coordenadas");
+    read(x,y);
+     i:=0;
+    {inv true inv}
+    {bound N-i bound}
+    do i<N ->
+        j:=0;
+        {inv true inv}
+        {bound M-j bound}
+        do j<M ->
+            m[i,j]:= ' ';
+        j:=j+1;
+        od;
+    i:=i+1;
+    od;
+    sibersinkirec(N,M,m,k,x,y);
+    
+        i:=0;
+    {inv true inv}
+    {bound N-i bound}
+    do i<N ->
+        j:=0;
+        {inv true inv}
+        {bound M-j bound}
+        do j<M ->
+            write(m[i,j]);
+        j:=j+1;
+        od;
+    writeln("");
+    i:=i+1;
+    od
+   // 14-10579 y 14-10397 
+
+]|
+end

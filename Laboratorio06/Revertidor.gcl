@@ -1,0 +1,51 @@
+program Revertidor begin
+
+proc revertir(inout n : int, inout a : array[100] of int)
+	var i := 0 : int;
+	var b : array[100] of int;
+	{pre true pre}
+	{post true post}
+
+	|[
+
+
+		{inv true inv}
+		{bound n - i bound}
+		do i < n ->
+				b[i]:= a[i];
+				i:= i + 1;
+		od;
+
+		{inv true inv}
+		{bound n - i bound}
+		do i < n ->
+				writeln(b[n - i]);
+				i:= i + 1;
+		od;
+
+
+	]|
+
+
+main |[
+		var a : array[100] of int;
+		var n : int;
+		var i := 0 : int;
+
+		writeln("Dado un arreglo n, vamos a revertir los valores en las posiciones. Introducir el valor de n: ");
+		read(n);
+
+		{inv true inv}
+		{bound n - i bound}
+		
+		do i < n ->
+			write("Introducir valor de a",i,": "); 
+			read(a[i]);
+			i:= i + 1;
+	 	od;
+
+	 revertir(n, a);
+	 writeln();
+
+]|
+end

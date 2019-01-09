@@ -1,0 +1,21 @@
+program Quien_es_x begin
+main |[
+
+	var a, b, c, x1, x2, raiz: float;
+
+	
+	writeln("Dado una ecuación ax^2 + bx + c = 0. Encontraremos el valor de x");
+	writeln("Escribir el valor de a:");
+	read(a);
+	writeln("Escribir el valor de b:");
+	read(b);
+	writeln("Escribir el valor de c:");
+	read(c);
+
+	if (raiz:= (((b)*(b) - (4.0*a*c))**(0.5)) /\ ((b)*(b) - (4.0*a*c)) > 0) -> (x1:= ((-(b) + raiz)) / (2.0*a)) /\ (x2:= ((-(b) - raiz)/(2*a)) /\ writeln("El valor de x1 es: ", x1) /\ writeln("El valor de x2 es: ", x2)
+	[] ((b)*(b) - (4*a*c)) < 0) -> writeln("No es posible calcular la raíz para números reales")
+	fi;
+	
+
+]|
+end

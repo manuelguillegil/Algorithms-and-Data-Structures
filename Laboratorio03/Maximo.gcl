@@ -1,0 +1,16 @@
+program Maximo begin
+main |[
+	var x, y, m: int
+;	write("Introduzca el valor de x:")
+;	read(x)
+;	write("Introduzca el valor de y:")
+;	read(y)
+
+	{true}
+;	if x <= y -> m:=y
+	[] x >= y -> m:=x
+	fi
+	{(x <= y ==> m == y) /\ (x >= y ==> m == x)}
+;	writeln("El maximo entre ", x, " y ", y,"  es  ", m)
+]|
+end

@@ -1,0 +1,20 @@
+program DivisoresRec begin
+
+func sumaDivisoresPropios(n : int) -> int
+{pre 1 <= n pre}
+{post sumaDivisoresPropios == (% sum i : int | 1 <= i /\ n < n /\ n mod i == 0 %) post}
+{bound n bound}
+|[
+	sumaDivisoresPropiosAux(n, 1)
+]|
+
+main |[
+	var n : int;
+
+	writeln("Escriba un número: ");
+	read(n);
+	write(n,"! = ", sumaDivisoresPropios(n);
+	writeln();
+
+]|
+end

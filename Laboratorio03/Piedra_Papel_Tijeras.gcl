@@ -1,0 +1,23 @@
+program Piedra_Papel_Tijeras begin
+main |[
+
+	var x, y : int;
+	writeln("Jugador uno: 1)Piedra, 2)Papel, 3) Tijera");
+	read(x);
+	writeln("Jugador dos: 1)Piedra, 2)Papel, 3) Tijera");
+	read(y);
+	{(1 <= x) /\ (x <= 3) /\ (1 <= y) /\ (y <= 3)};
+
+	if (x == y) -> writeln("empate")
+	[] (x == 1) /\ (y == 3) -> writeln("Jugador uno gana")
+	[] (x == 1) /\ (y == 2) -> writeln("Jugador dos gana")
+	[] (x == 2) /\ (y == 1) -> writeln("Jugador uno gana")
+	[] (x == 2) /\ (y == 3) -> writeln("Jugador dos gana")
+	[] (x == 3) /\ (y == 1) -> writeln("Jugador dos gana")
+	[] (x == 3) /\ (y == 2) -> writeln("Jugador uno gana")
+	fi;
+
+
+]|
+end
+

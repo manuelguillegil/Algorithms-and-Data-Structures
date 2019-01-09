@@ -1,0 +1,30 @@
+program ImprimedesdeHasta begin
+
+proc ImprimeDesdeHasta(in a: int, in b : int)
+	{pre a <= b pre}
+	{post true post}
+	|[
+		var i:= a : int;
+			{inv a <= i /\ i <= b + 1 inv}
+			{bound b - i + 1 bound}
+				do i <= b ->
+					write(i," ");
+					i:=i + 1;
+					od;
+	]|
+
+main
+|[	var a : int;
+	var b : int;
+
+	writeln("Vamos a imprimir los números desde a hasta b. Asignar valor de a: ");
+	read(a);
+	writeln("Asignar valor de b: ");
+	read(b);
+	writeln("Los números desde ",a, " hasta ",b, " son: ");
+	ImprimeDesdeHasta(a,b);
+
+
+
+]|
+end

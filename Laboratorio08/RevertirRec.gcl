@@ -1,0 +1,69 @@
+program RevertirRec begin
+
+proc revertir(in inicio : int, in fin : int, inout a : array [100] of int)
+var a' : array [100] of int;
+{pre inicio <= fin pre}
+{post (% forall i : int | inicio <= i /\ i < fin | a'[i] == a[fin - i] %) post}
+{bound fin bound}
+|[
+	//Copia del arreglo a en a', para poder comparar la postcondición
+	var i := inicio : int;
+
+	{inv (% forall k : int | inicio <= k /\ k < i | a'[k] == a[k] %) /\ inicio <= i /\ i <= fin + 1 inv}
+	{bound fin + 1 - i bound}
+	do i <= fin ->
+		a'[i], i := a[i], i + 1;
+	od;
+
+	// Cuerpo del procedimiento
+	if inicio < fin -> a[inicio], a[fin] := a[fin], a[inicio]
+	[] inicio == fin -> skip
+	fi;
+
+	if inicio < fin - 1 -> revertir(inicio + 1, fin - 1, a)
+	[] (inicio == fin) \/ (inicio == fin - 1) -> skip
+	fi;
+]|
+
+main |[
+
+	var a: array[100] of int;
+	var i:=0 :  int;
+	var n: int;
+
+	writeln("Escriba un número n");
+	read(n);
+
+	{inv true inv}
+	{bound n - i bound}
+	do i < n -> 
+		write("Elemento a[",i,"]: ");
+		read(a[i]);
+		i:= i + 1;
+	od;
+	writeln();
+
+	writeln("El arreglo es igual a: ");
+	i:= 0;
+	{inv true inv}
+	{bound n - i bound}
+	do i < n -> 
+		write(a[i]," ");
+		i:= i + 1;
+	od;
+	writeln();
+
+	revertir(i, n, a);
+
+	writeln("El arreglo revertido es igual a: ");
+	i:= 0;
+	{inv true inv}
+	{bound n - i bound}
+	do i < n -> 
+		write(a[i]," ");
+		i:= i + 1;
+	od;
+	writeln();
+
+]|
+end

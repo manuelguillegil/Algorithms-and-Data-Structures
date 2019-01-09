@@ -1,0 +1,26 @@
+program maximo begin
+
+func maximo(a: int b: int) -> float
+	{pre true pre}
+	{post (a >= b ==> maximo == a) /\ (b >= a ==> maximo = b) post}
+
+	|[
+
+	if a >= b -> a
+	[] b >= a -> b
+	fi
+		
+
+
+	]|
+
+
+main |[
+		var a : int;
+		var b : int;
+
+		read(a);
+		read(b);
+		
+]|
+end

@@ -1,0 +1,34 @@
+program raices begin 
+func  mayorraiz(a:float,b:float,c:float) -> float
+{pre (b*b)>4.0*a*c /\ a != 0.0  pre}
+{post mayorraiz == ((-b + sqrt((b*b)-4.0*a*c))/2.0*a) \/ mayorraiz == ((-b - sqrt((b*b)-4.0*a*c))/2.0*a)  post}
+|[
+     	
+	  if (-b + sqrt((b*b)-4.0*a*c))/2.0*a >= (-b - sqrt((b*b)-4.0*a*c))/2.0*a ->
+	     (-b + sqrt((b*b)-4.0*a*c))/2.0*a
+	  [] (-b - sqrt((b*b)-4.0*a*c))/2.0*a > (-b + sqrt((b*b)-4.0*a*c))/2.0*a ->
+		 (-b - sqrt((b*b)-4.0*a*c))/2.0*a
+	  fi	 	
+]|
+
+
+
+
+main |[
+	
+	
+	var raiz: float;
+	var a,b,c: float;
+	writeln("De los valores de a,b,c");
+	read(a);
+	read(b);
+	read(c);
+	{true}
+	
+	raiz:= mayorraiz(a,b,c);
+	writeln("El valor es ",raiz)
+	
+
+]|
+
+end

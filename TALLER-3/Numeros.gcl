@@ -1,0 +1,108 @@
+program Numeros begin
+
+// ------------------- PRIMER PROCEDIMIENTO ---------------
+proc sumaDivisores(in x : int, out w : int)
+{pre ( x >= 0 ) pre}
+{post true post}
+|[
+	// Declaración de variables s: divisores y c: suma de divisores	
+		var i, s, c : int;
+
+		s, c := 1, 0;
+
+		if x > 0 ->
+			{inv s >= 1 /\ s <= x inv}  
+			{bound x - s bound}
+	
+			do (s < x) -> 
+				if x mod s == 0 ->  c:= c + s;
+				[] x mod s != 0 -> skip
+				fi;
+				s:= s + 1;
+			od;
+		[] x == 0 -> c:= 0;
+		fi;
+
+		//Finalmente asignamos el valor de la suma del número de entrada x a nuestra variable de salida que es w
+
+		w:= c;
+]|
+
+
+//----------------------- SEGUNDO PROCEDIMIENTO ----------------------	
+proc amigos(in r : int, in t : int, out b : boolean)
+{pre (r >= 0) /\ (t >= 0) pre}
+{post true post}
+	|[	var p: int;
+		var q: int;
+
+		sumaDivisores(r, p);
+		sumaDivisores(t, q);
+
+		b:= false;
+
+		if (r == q) /\ (t == p) -> b := true
+		[]  (r != q) \/ (t != p) -> skip
+		fi;
+	]|
+
+
+//---------------------- TERCER PROCEDIMIENTO ----------------------------
+proc perfecto(in x : int, out b : boolean)
+	{pre ( x >= 0 ) pre}
+	{post true post}
+	|[
+		var c : int;
+
+		sumaDivisores(x,c);
+
+	if c == x -> b:= true; write(x, "  es un número perfecto")
+	[] c != x -> b:= false; write(x," no es un número perfecto")
+	fi;
+	]|
+
+
+//--------------------------- PROGRAMA ---------------------------
+
+main 
+|[
+	var x : int;
+	var y : int;
+	var b : boolean;
+	var a : int;
+	var d : int;
+
+	writeln("Dado dos números 'x' y 'y'. Vamos a calcular si dichos números son amigos o no.");
+	writeln("Por lo tanto, asigne un valor para x: ");
+	read(x);
+
+	writeln("Ahora asigne un valor para y: ");
+	read(y);
+	writeln();
+
+	{(x >= 0) /\ (y >= 0)}
+
+	sumaDivisores(x,a);
+	writeln("La suma de los divisores de ",x," es igual a: ", a);
+	writeln();
+
+	sumaDivisores(y,d);
+	writeln("La suma de los divisores de ",y," es igual a: ", d);
+	writeln();
+
+	amigos(x,y,b);
+		if b == true -> writeln("Los números ",x," y ",y," son amigos")
+		[] b == false -> writeln("Los números ",x," y ",y," no son amigos")
+		fi;
+		writeln();
+
+	write("Además ");
+	perfecto(x,b);
+	write(" y ");
+
+	b:= false;
+	perfecto(y,b);
+	writeln();
+
+]|
+end

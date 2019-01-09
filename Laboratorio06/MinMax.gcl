@@ -1,0 +1,26 @@
+program MinMax begin
+
+proc minmax(inout a : int, inout b : int)
+	var z, w := a , b : int;
+	{pre true pre}
+	{post (z <= w ==> a == z /\ b == w) /\ (z >= w ==> a == w /\ b == z) post}
+	|[
+		if a <= b -> skip
+		[] a >= b -> a, b := b, a
+		fi;
+			
+	]|
+
+main
+|[	var x, y : int;
+	writeln("Dado dos números, vamos a calcular quien es menor o igual a quien. Introducir el valor de x: ");
+	read(x);
+	writeln("Introducir el valor de y: ");
+	read(y);
+	minmax(x,y);
+	writeln(x, " Es menor o igual a ", y);
+
+
+
+]|
+end

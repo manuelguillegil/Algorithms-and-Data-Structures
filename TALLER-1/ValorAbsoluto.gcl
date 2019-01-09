@@ -1,0 +1,23 @@
+program ValorAbsoluto begin
+main |[
+	//Declaración de variable
+	var n : int;
+	
+	//Escribimos el número el cual queremos saber su valor absoluto
+	writeln("Escribir un número n: ");
+	read(n)
+	
+	//Precondición
+	{true};
+
+	//Condicionales con el if
+	if (n > 0) \/ (n == 0) -> skip
+	[] (n < 0) -> n:=-n
+	fi;
+
+	//Postcondición
+	{((n>0) \/ (n==0) ==> true) \/ (n<0 ==> n == -n)};
+
+	writeln("El valor absoluto es: ", n);
+]|
+end

@@ -1,0 +1,28 @@
+program Temperatura.gcl begin
+main |[ 
+	//Definimos la variable "f" y "c" de tipo entero
+
+	var f: float;
+	var c: float;
+	
+
+
+	//Imprimimos en la pantalla lo siguiente
+	writeln("Asignar valor de f");
+
+	//Leeemos el valor de la variable "f"
+	read(f);
+	{f>=-459.67};
+
+	//Asignamos un valor que depende de "f" a la variable "c"
+	c:= (f-32.0)*5.0/9.0
+
+	//Definimos una condición para que se cumpla la fórmula antes señalada
+	{c==(f-32)*5/9};
+
+	//Imprimimos el valor de "c"
+	Writeln(c);
+
+	
+]|
+end

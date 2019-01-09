@@ -1,0 +1,158 @@
+program SumaMat begin
+main |[
+
+	 var a : array [100, 100] of int;
+	 var b : array [100, 100] of int;
+	 var c : array [100, 100] of int;
+	 var n : int;
+	 var m : int;
+	 var r : int;
+	 var s : int;
+	 var i := 0 : int;
+	 var j := 0 : int;
+	 var q := 0 : int;
+	 var k := 0 : int;
+	 var x := 0 : int;
+	 var y := 0 : int;
+
+	write("Dada una matriz A, escribir el número de filas: ");
+	read(n);
+	write("Escribir el número de columnas:  ");
+	read(m);
+
+	{inv true inv}
+	{bound n - i bound}
+
+	do i < n ->
+				j:= 0;
+
+				{inv true inv}
+				{bound m - j bound}
+
+				do j < m ->
+							write("Introducir el elemento a:",i, j, " ");
+							read(a[i, j]);
+							j:= j + 1;
+				od;
+				i:= i + 1;
+	od;
+
+	write("Dada una matriz B, escribir el número de filas:  ");
+	read(r);
+	write("Escribir el número de columnas:  ");
+	read(s);
+
+	i:= 0;
+	j:= 0;
+
+	{inv true inv}
+	{bound r - i bound}
+	do i < r ->
+				j:= 0;
+
+				{inv true inv}
+				{bound s - j bound}
+
+				do j < s ->
+							write("Introducir el elemento b:",i, j, " ");
+							read(b[i, j]);
+							j:= j + 1;
+				od;
+				i:= i + 1;
+	od;
+
+	write();
+	write();
+	writeln("Tenemos una matriz A de ", n, " x ", m, ". Y otra matriz B de ", r, " x ", s);
+	
+i:= 0;
+	write();
+	write();
+ 	writeln("La matriz A es: ");
+
+ 	{inv (0 <= i) /\ (i <= n)  inv}
+ 	{bound n - i bound}
+
+ 	do i < n ->
+ 		j:= 0;
+
+ 		{inv (0 <= j) /\ (j <= m) inv}
+ 		{bound m - j bound}
+
+ 		do 
+ 			j < m ->
+ 				write(a[i, j]);
+ 				write("  ");
+ 				j:= j + 1;
+ 		od;
+ 		writeln(" ");
+ 		i:= i + 1;
+ od;
+
+ i:= 0;
+ 	writeln("La matriz es B: ");
+
+ 	{inv (0 <= r) /\ (i <= r)  inv}
+ 	{bound r - i bound}
+
+ 	do i < r ->
+ 		j:= 0;
+
+ 		{inv (0 <= j) /\ (j <= m) inv}
+ 		{bound s - j bound}
+
+ 		do 
+ 			j < s ->
+ 				write(b[i, j]);
+ 				write("  ");
+ 				j:= j + 1;
+ 		od;
+ 		writeln(" ");
+ 		i:= i + 1;
+ od;
+
+	{true}
+
+	i:= 0;
+	
+if (n==r) /\ (m==s) ->
+	writeln("La suma entre A y B es: ");
+	{inv (0 <= i) /\ (i <= n) inv}
+ 	{bound n - i bound}
+
+ 	do 
+ 		i < n ->
+ 			j:=0;
+
+ 			{inv (0 <= j) /\ (j <= m) inv}
+ 			{bound m - j bound}
+
+ 			do
+ 				j < m ->
+ 					c[i, j]:= a[i, j] + b[i, j];
+ 					write(c[i, j]," ");
+ 					j:= j + 1;
+ 			od;
+
+ 			writeln();
+ 			i:= i + 1;
+
+	od;														
+
+[] (n!=r) \/ (m!=s) ->
+				writeln("No existe la suma entre ambas matrices puesto que son de diferente dimensiones");
+fi;
+
+
+
+	
+
+	   
+	
+
+	
+	{true};
+
+	
+	]|
+end

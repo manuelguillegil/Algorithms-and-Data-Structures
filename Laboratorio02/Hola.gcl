@@ -1,0 +1,5 @@
+program Hola begin
+main|[ 
+	writeln("Hola mundo!");
+]|
+end

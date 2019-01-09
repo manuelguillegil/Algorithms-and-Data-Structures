@@ -1,0 +1,58 @@
+program Cuadrados begin
+main |[
+	//Declaración de variable
+	var x11, y11, x12, y12, l11, l12, a1 : int;
+	var x21, y21, x22, y22, l21, l22, a2 : int;
+	var intera, uniona : int;
+	var x31, y31, x32, y32, l31, l32, a3 : int;
+	var i : int;
+	
+	
+	//Escribimos los valores del cuadrado
+	writeln("Escribir las coordenadas de un cuadrado x11, y11, x12 y y12: ");
+	read(x11, y11, x12, y12)
+	
+	//Precondición del primer cuadrado
+	{(x11>0) /\ (y11>0) /\ (x12>0) /\ (y12>0)};
+
+	//Calculamos el área del primer cuadrado
+	if (x11 > x12) -> l11:=(x11-x12)
+	[] (x12 > x11) -> l11:=(x12-x11)
+	[] (y11 > y12) -> l12:=(y11-y12)
+	[] (y12 > y11) -> l12:=(y12-y11)
+	fi;
+	a1:=(l11*l12);
+	
+	//Escribimos los valores del cuadrado
+	writeln("Escribir las coordenadas de un cuadrado x21, y21, x22 y y22: ");
+	read(x21, y21, x22, y22)
+	
+	//Precondición del primer cuadrado
+	{(x21>0) /\ (y21>0) /\ (x22>0) /\ (y22>0)};
+
+	//Calculamos el área del primer cuadrado
+	if (x21 > x12) -> l21:=(x21-x22)
+	[] (x22 > x11) -> l21:=(x22-x21)
+	[] (y21 > y12) -> l22:=(y21-y22)
+	[] (y22 > y11) -> l22:=(y22-y21)
+	fi;
+	a2:=(l21*l22);
+
+	;  {inv i == (% sum k : int | x11 <= k /\ k < x12 | k %) /\ j == (% sum k : int | x21 <= k /\ k < x22 | k %) inv}
+	   {bound true  bound}
+	
+	do 
+		
+	od
+
+	
+	//Lo que tenía pensado hacer es agarrar un número "i" el cual "recorrerá" desde el valor x11 al x12 a ver si coincide con otro j el cual estará entre x21 y x22. En caso de ser valido, será una coordenada del nuevo cuadrado. Y así sucesivamente hasta construir un tercer cuadrado, en donde podemos calcular su area (el cual sería el área de intersección entre A y B) y si sumamos las dos áreas ya antes calculados, sería el área de unión entre A y B
+
+
+
+	//Postcondición
+	{true};
+
+
+]|
+end

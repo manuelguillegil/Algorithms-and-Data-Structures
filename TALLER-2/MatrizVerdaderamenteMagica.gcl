@@ -1,0 +1,289 @@
+program MatrizMagica begin
+main |[
+
+	 var a : array [100, 100] of int;
+	 var n : int;
+	 var m : int;
+	 var i := 0 : int;
+	 var j := 0 : int;
+	 var x := 0 : int;
+	 var y := 0 : int;
+	var z := 0 : int;
+	var b := true : boolean;
+	var c:= true : boolean;
+	var f:= true : boolean;
+	var d1:= true : boolean;
+	var d2:= true : boolean;
+	var o:= true : boolean;
+
+
+	write("Dada una matriz A, escribir el número de filas y columnas: ");
+	read(n);
+	m:= n;
+	
+	{(n > 0) /\ (m > 0)}
+
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound n - i bound}
+
+	do i < n ->
+				j:= 0;
+
+				{inv (j >= 0) /\ (j <= m) inv}
+				{bound m - j bound}
+
+				do j < m ->
+							write("Introducir el elemento a:",i, j, " ");
+							read(a[i, j]);
+							j:= j + 1;
+				od;
+				i:= i + 1;
+	od;
+
+	writeln("Tenemos una matriz A de ", n, " x ", m);
+	
+i:= 0;
+
+ 	writeln("La matriz A es: ");
+
+ 	{inv (0 <= i) /\ (i <= n)  inv}
+ 	{bound n - i bound}
+
+ 	do i < n ->
+ 		j:= 0;
+
+ 		{inv (0 <= j) /\ (j <= m) inv}
+ 		{bound m - j bound}
+
+ 		do 
+ 			j < m ->
+ 				write(a[i, j]);
+ 				write("  ");
+ 				j:= j + 1;
+ 		od;
+ 		writeln(" ");
+ 		i:= i + 1;
+ od;
+
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound n - i bound}
+
+	do i < n ->
+				j:= 0;
+
+				{inv (j >= 0) /\ (j <= m) inv}
+				{bound m - j bound}
+
+				do j < m ->
+							if (a[i,j] > 0) /\ (a[i,j] <= n*n) -> skip
+							[] (a[i,j] < 0) \/ (a[i,j] > n*n) -> o:= false
+							fi;
+							j:= j + 1;
+				od;
+				i:= i + 1;
+	od;
+
+
+
+i:= 0;
+j:= 0;
+		{inv (j >= 0) /\ (j <= n) inv}
+		{bound m - j bound}
+		
+		do j < m ->
+			x:= x + a[i,j];
+			j:= j + 1;
+			y:= x;
+		od;
+
+i:= 0;
+x:= 0;
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound n - i bound}
+	
+	do i < n ->
+		j:= 0;
+		x:= 0;
+
+		{inv (j >= 0) /\ (j <= n) inv}
+		{bound m - j bound}
+		
+		do j < m ->
+			x:= x + a[i,j];
+			j:= j + 1;
+		od;
+
+			if x == y -> b:=true
+			[] x != y -> b:=false
+			fi;
+
+			if b==false -> f:=false
+			[] b==true -> skip
+			fi;
+
+		i:= i + 1;	
+	od; 
+	
+i:= 0;
+j:= 0;
+x:= 0;
+y:= 0;
+		{inv (i >= 0) /\ (i <= n) inv}
+		{bound n - i bound}
+		
+		do i < n ->
+			x:= x + a[i,j];
+			i:= i + 1;
+			y:= x;
+		od;
+	
+j:= 0;
+
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound m - j bound}
+	
+	do j < m ->
+		i:= 0;
+		x:= 0;
+
+		{inv (j >= 0) /\ (j <= n) inv}
+		{bound n - i bound}
+		
+		do i < n ->
+			x:= x + a[i,j];
+			i:= i + 1;
+		od;
+
+			if x == y -> b:=true
+			[] x != y -> b:=false
+			fi;
+
+			if b==false -> c:=false
+			[] b==true -> skip
+			fi;
+
+		j:= j + 1;	
+	od; 
+
+i:= 0;
+j:= 0;
+x:= 0;
+y:= 0;
+
+	
+		{inv (i >= 0) /\ (i <= n) inv}
+		{bound n - i bound}
+		
+		do i < n ->
+			j:= 0;
+			{inv (j >= 0) /\ (j <= n) inv}
+			{bound m - j bound}
+			do j < m ->
+				if (i == j) -> x:= x + a[i,j]
+				[] (i != j) -> skip
+				fi;
+				j:= j + 1;
+				y:= x;
+			od;
+			i:= i + 1;
+		od;
+
+i:= 0;
+x:= 0;
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound n - i bound}
+	
+	do i < n ->
+		j:= 0;
+
+		{inv (j >= 0) /\ (j <= n) inv}
+		{bound m - j bound}
+		
+		do j < m ->
+			if (i==j) -> x:= x + a[i,j];
+			[] (i!=j) -> skip
+			fi;
+			j:= j + 1;
+		od;
+
+		i:= i + 1;	
+	od;
+ 
+			if x == y -> b:=true
+			[] x != y -> b:=false
+			fi;
+
+			if b==false -> d1:=false
+			[] b==true -> skip
+			fi;
+
+i:= 0;
+j:= 0;
+x:= 0;
+y:= 0;
+
+	
+		{inv (i >= 0) /\ (i <= n) inv}
+		{bound n - i bound}
+		
+		do i < n ->
+			j:= 0;
+			{inv (j >= 0) /\ (j <= n) inv}
+			{bound m - j bound}
+			do j < m ->
+				if (n -1 - i == j) -> x:= x + a[i,j]
+				[] (n -1 - i != j) -> skip
+				fi;
+				j:= j + 1;
+				y:= x;
+			od;
+			i:= i + 1;
+		od;
+i:= 0;
+x:= 0;
+
+	{inv (i >= 0) /\ (i <= n) inv}
+	{bound n - i bound}
+	
+	do i < n ->
+		j:= 0;
+
+		{inv (j >= 0) /\ (j <= n) inv}
+		{bound m - j bound}
+		
+		do j < m ->
+			if (n - 1 - i == j) -> x:= x + a[i,j];
+			[] (n - 1 - i != j) -> skip
+			fi;
+			j:= j + 1;
+		od;
+		i:= i + 1;	
+	od; 
+
+			if x == y -> b:=true
+			[] x != y -> b:=false
+			fi;
+
+			if b==false -> d2:=false
+			[] b==true -> skip
+			fi;
+
+	if (f == false) \/ (c == false) \/ (d1 == false) \/ (d2 == false) -> writeln("La matris A no es magica")
+	[] (f == true) /\ (c == true) /\ (d1 == true) /\ (d2 == true) -> writeln("La matriz A es magica")
+	fi;
+	
+	writeln(o);
+
+	if o == true -> skip
+	[] o == false -> writeln("Sin embargo la matriz no es verdaderamente magica, puesto que cada elemento de la matriz debe estar entre 1 y ", n, " al cuadrado");
+	fi;
+	
+	
+
+
+	
+	{(x >= 0) /\ (y >= 0)}
+
+	
+	]|
+end

@@ -1,0 +1,907 @@
+program buscaminas begin
+
+// NOTA: INVARIANTES Y POSCONDICIONES COMENTADAS PARA EVITAR FUTUROS ERRORES DENTRO DE LA EJECUCION DEL  PROGRAMA
+  
+// Funciones y Procedimientos 
+
+// ------ PROCEDIMIENTO PARA LEER LAS ENTRADAS DEL USUARIO ------
+
+proc lectura(inout N:int, inout M:int, inout T: int)
+{pre true  pre} // 2<=N /\  N>=16 /\ 2<=M /\ M>=16 /\ T<=(N*M)/2
+{post true post} // 2<=N /\  N>=16 /\ 2<=M /\ M>=16 /\ T<=(N*M)/2
+|[
+    writeln("Bienvenidos al juego Buscaminas");
+	writeln("");
+	writeln("Introduzca el valor de N y de M que van a representar el tamano de su buscamina(M y N deben ser mayores que 1 y menores que 17): ");
+	writeln();
+	writeln("Introduzca el valor de N que representa las columnas: ");
+	read(N);
+	writeln("Introduzca el valor de M que representa las filas: ");
+	read(M);
+	writeln("Ahora introduzca la cantidad de minas(No puede exceder N*M/2): ");
+	read(T);
+	
+]|
+
+//------------------------ LECTURA ROBUSTA -----------------------
+// N: Tamaño fila, M: Tamaño columna, T: Número de minas
+	
+proc lecturarob(inout N:int, inout M:int, inout T:int,out s: boolean)
+{pre true pre} // 2<=N /\  N>=16 /\ 2<=M /\ M>=16 /\ T<=(N*M)/2
+{post (2 <= N /\  N <= 16 /\ 2 <= M /\ M <= 16 /\ T <= (N*M)/2 ) ==> true post}
+|[	
+	
+	lectura(N,M,T);
+	
+		if  2 <= N /\  N <= 16 /\ 2 <= M /\ M <= 16 /\ T <= (N*M)/2 ->
+			s:=true
+		[] 2>N \/  N>16 ->
+			writeln("N no esta entre 2 y 16");
+			s:= false
+		[] 2>M \/  M>16 ->
+			writeln("M no esta entre 2 y 16");
+			s:= false
+		[] T>(N*M)/2 ->
+			writeln("El numero de minas excede lo establecido");
+			s:= false
+		fi;
+	
+]|
+    
+// -------------------- TABLERO TAPADO AL INICIO ---------------------------
+    
+proc tableroinicial(in N: int, in M:int,inout a:array[1000,1000] of char)
+{pre true pre} //2<=N /\  N>=16 /\ 2<=M /\ M>=16
+{post true post} // (forall i : int | (forall j : int | 0 <= i < n /\ 0 <= j < M | a[i,j] == '#'))
+|[
+    
+// ----------- ASIGNAMOS EL VALOR "#" A TODOS LOS ELEMENTOS DE LA MATRIZ -----
+    var i,j: int;
+    i:=0;
+    {inv true inv}
+    {bound N-i+1 bound}
+    do i<= N ->
+        j:=0;
+        {inv true /* (forall k:int| 0<=k /\ k<M| a[i,j] == '#')  */ inv}
+        {bound M-j bound}
+        do j < M ->
+                a[i,j]:= '#';
+                j:=j+1
+        od;
+    i:=i+1;
+    od
+            
+]|
+    
+// ---------------------------- TABLERO DESTAPADO ----------------------------
+proc tablero(in N : int, in M : int,in b: array[400,400] of int,out a: array[1000, 1000] of char)
+{pre true pre} //2<=N /\  N>=16 /\ 2<=M /\ M>=16
+{post true post} /* (% forall k:int| 0<=k /\ k<=i| (% forall l:int| 0<=l /\ l<=j|a[k,l] == '' %) %) /\ 0<=i /\ i<=N */ 
+|[
+    
+    var i,j: int;
+    i:= 0;
+	{inv true /* (% forall k:int| 0<=k /\ k<=i| (% forall l:int| 0<=l /\ l<=j|a[k,l] == '' %) %) /\ 0<=i /\ i<=N */ inv}
+	{bound N - i + 1 bound}
+		do i <= N ->
+			j:= 0;
+			{inv true inv}
+			{bound M - j + 1 bound}
+				do j <= M ->
+					if b[i,j] == -1 ->
+						a[i,j]:= '*';
+					[] b[i,j] == 0 ->
+						a[i,j]:= ' '
+					[] b[i,j] == 1 ->
+						a[i,j]:= '1'
+					[] b[i,j] == 2 ->
+						a[i,j]:= '2'
+					[] b[i,j] == 3 ->
+						a[i,j]:= '3'
+					[] b[i,j] == 4 ->
+						a[i,j]:= '4'
+					[] b[i,j] == 5 ->
+						a[i,j]:= '5'
+					[] b[i,j] == 6 ->
+						a[i,j]:= '6'
+					[] b[i,j] == 7 ->
+						a[i,j]:= '7'
+					[] b[i,j] == 8 ->
+						a[i,j]:= '8'
+					[] b[i,j] == 9 ->
+						a[i,j]:= '9'
+					[] !(b[i,j] < 10 /\ -2<b[i,j]) ->
+						skip			
+					fi;
+					
+					
+					j:= j + 1;
+				od;
+		i:= i + 1;
+		od;
+       
+]|
+
+// ------------ GENERADOR DEL TABLERO CON LOS BORDES INCLUIDOS ----------
+proc bordes(in N : int, in M : int,ref a: array[1000, 1000] of char)
+{pre true pre} //2<=N /\  N>=16 /\ 2<=M /\ M>=16
+{post true post} // (forall i : int | (count j : int | 6 <= i < n /\ 0 <= j < n | abc_array[i] == j ))
+
+|[
+	var i , j,k: int;
+	var abc_array: array[10] of char;
+	
+	// ---------------- TABLERO -----------------------------
+		
+	abc_array[0],abc_array[1],abc_array[2],abc_array[3],abc_array[4],abc_array[5]:='A','B','C','D','E','F';
+	write("  ");
+
+
+
+	
+		
+	// ------------ BASE HORIZONTAL --------------------------
+
+	if (N <= 16) /\ (M <= 16) ->	
+	// ----------- NUMEROS MENORES O IGUALES A 9 -------------------
+		if (M <= 9) ->
+		
+			i := 0;
+			{inv true /* 0 <= i /\ i < M */inv}
+			{bound M - i bound}	
+				do i < M ->		
+					write(" ", i);
+					i := i + 1		
+				od;
+	
+	// ---------- NUMEROS MAYORES A 9 Y MENORES A 16 ------------------------------
+		[] (M > 9) ->
+	
+			i := 0;
+			{inv true /* 0 <= i /\ i < M */inv}
+			{bound 9 - i + 1 bound}	
+				do i <= 9 ->
+				write(" ",i);
+				i:= i + 1		
+				od;
+			
+			i := 0;
+			{inv true /* 0 <= i /\ i < M */inv}
+			{bound M - i  bound}
+				do i < M - 10 ->
+					write(" ", abc_array[i]);
+					i:= i+1;
+				od;
+		fi;
+
+			i := 0;
+			writeln("");
+			write("  +");
+			{inv true /* 0 <= i /\ i < M */ inv}
+			{bound M - i bound}
+			do i < M  ->
+				write("--");
+				i:=i+1
+			od;
+			writeln();
+		
+	// ------------------ BASE VERTICAL ------------------------------------	
+	
+
+			if N<=9 ->
+	
+			i:=0;
+			{inv true /* 0 <= i /\ i < N */ inv}
+			{bound N - i bound}
+				do i < N ->
+					j:= 0;
+					write(i," |");
+						{inv true inv}
+						{bound M - j bound}
+							do j < M ->
+								write(a[i,j]," ");
+								j:= j + 1;
+							od;					
+					writeln();
+					i:=	i + 1
+			od;
+	
+			[] N > 9 ->
+	
+				i:=0;
+				{inv true /* 0 <= i /\ i <= 9 */ inv}
+				{bound 9 -i +1 bound}
+					do i <= 9 ->
+					j:= 0;
+					write(i," |");
+						{inv true inv}
+						{bound M - j + 1 bound}
+							do j <= M ->
+								write(a[i,j]," ");
+								j:= j + 1;
+							od;					
+					writeln();
+					i:= i + 1
+					od;
+
+			/*
+				i,k:=10,0;
+				{inv true inv}
+				{bound N-i bound}
+					do i<N   ->
+					write(abc_array[k]," |");
+					j:= 0;
+					
+						{inv true inv}
+						{bound M - j bound}
+							do j < M  ->
+								write(a[i,j]," ");
+								j:= j + 1;
+							od;
+					writeln();
+					i:=i+1;
+					k:=k+1;
+			od;*/
+			fi;
+        fi;
+
+	]|
+
+
+// ------------------- MÉTODO CONGRUENCIAL MIXTO ---------------
+// PROCESO MODIFICADO --- MAS POTENTE 
+
+proc fisher(in y: array[400] of int, in M: int, in N:int,out x: array[400] of int,in s:int,in T:int)
+{pre true pre} //2<=N /\  N>=16 /\ 2<=M /\ M>=16
+{post true post} /* (% forall k:int |  k == 0 | y[i] == s %) /\ (% forall k:int | k > 0 /\ k<0  | y[k] == ((y[k-1]*8121)+28411) mod 134456  %) /\ i>= 0 /\ i <= N*M */
+|[	
+	var i,j:int;
+	i,j:=0,0;
+	{inv true /* (% forall k:int |  k == 0 | y[i] == s %) /\ (% forall k:int | k > 0 /\ k<0  | y[k] == ((y[k-1]*8121)+28411) mod 134456  %) /\ i>= 0 /\ i <= N*M */ inv}
+	{bound N*M-i bound}
+	do j<T ->
+		if i == 0 ->
+			y[i]:= s
+		[] i != 0 ->
+			y[i]:= ((y[i-1]*8121)+28411) mod 134456;
+			if x[y[i] mod (N*M)] == 0 -> 
+				x[y[i] mod (N*M)]:= 1;
+				j:=j+1
+			[] x[y[i] mod (N*M)] != 0 ->
+				skip
+			fi
+			
+		fi;
+		i:=i+1;
+	od;
+
+]|
+
+	
+// ------------- Transformo mi arreglo unidimensional en uno bidimensional --------------
+// Transformo mi matriz de 0 Y 1 a una matriz booleana que es true donde haya minas y false donde no
+	
+proc transformacion(in N: int,in M:int,in valoresmatriz: array[400] of int,out e: array[400,400] of boolean)
+{pre true pre} //2<=N /\  N>=16 /\ 2<=M /\ M>=16
+{post true post} // (forall i : int | (forall j : int | (forall k : boolean | 0 <= i < n | e[i,j] == true \/ e[i,j] == false ))
+|[
+	
+	var i,j,k: int;
+	var c: array[400,400] of int;
+	k:=0;
+	i:=0;
+
+	{inv true inv}
+	{bound N*M - k bound}
+	do k < N*M ->
+
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+				c[i,j]:= valoresmatriz[k];
+			k:=k+1;
+			j:=j+1;
+		od;
+	i:=i+1;
+	od;
+	od;	
+	
+// --------------- MATRIZ BOOLEANA ------------	
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M ->
+			 if c[i,j] == 1 ->
+				e[i,j]:= true 
+			 [] c[i,j] == 0 ->
+				e[i,j]:= false
+			 []	c[i,j] != 1 /\ c[i,j] != 0 ->
+				skip
+			 fi;
+			 j:=j+1;
+		od;
+	i:=i+1
+	od;										
+]|
+	
+// ----------- Recorre en busca de  minas alrededor. Esto nos servirá para crear la matriz de adyacencia ---------------- 
+proc recorremina(in ini : int, in inj : int, in fini : int, in finj : int, in c : array[400,400] of boolean, out d : int)
+{pre true pre}
+{post true post}
+|[	
+	
+	var i , j : int;
+
+	// Dado un elemento c[i,j], vamos a ver cuantas minas tiene adyacentes
+
+	i := ini;
+	{inv true /* (% forall k:int|0 <=k /\ k<= finj (| (c[i,j] == true ==> d == d+1) \/ c[i,j] == false %) */  inv}
+	{bound fini-i+1 bound}
+	do i <= fini ->
+		j := inj;
+		
+		{inv true inv}
+		{bound finj - j + 1 bound}
+		do j <= finj ->
+		if c[i,j] == true ->
+			d := d + 1
+		[] c[i,j] == false ->
+			skip;
+		fi;
+		j:=j+1;
+		od;
+	i:=i+1;
+	od;
+	
+]|
+
+// Establece las minas alrededor y cuenta cuantas hay y me devuelve una matriz con el numero de minas alrededor(BUG DE GRACIELA N)
+
+proc minasalrededor(in N: int, in M: int,in c: array[400,400] of boolean, out d:  array[400,400] of int)
+{pre true pre}
+{post true post}
+|[
+
+	var i,j,k,x: int;
+	i:=0;
+
+	//Supongamos que en cada posición de la matriz no hay ninguna bomba. Es decir, es "0" en todos los valores
+
+	{inv true inv}
+	{bound N - i + 1 bound}
+	do i <= N ->
+		j := 0;
+
+		{inv true /* (% forall k:int| 0<=k /\ k<=j| d[i,j] == 0 %) /\ 0<=j /\ j<=M */ inv}
+		{bound M - j + 1 bound}
+		do j <= M ->
+			d[i,j]:= 0;
+			j:= j + 1;
+		od;
+		i:= i + 1;
+	od;
+
+	// Evaluamos todos los casos, para las esquinas, para los bordes y pero el medio del tablero
+	
+	i:=0;
+	{inv true inv}
+	{bound N-i bound}
+	do i<N ->
+		j:=0;
+		{inv true inv}
+		{bound M-j bound}
+		do j<M->
+		if  c[i,j] == false ->
+			if i == 0 /\ j == 0 ->
+				x:= 0;
+				recorremina(i, j,i + 1,j + 1, c, x);
+				d[i,j]:= x + d[i,j];
+				 
+			[] i == 0 /\ (0 < j /\ j <= M) ->
+				x:= 0;
+				recorremina(i, j-1, i+1, j+1, c, x);
+				d[i,j]:= x + d[i,j];
+				 
+			[] (0 < i /\ i < N) /\ j == 0 ->
+				x:= 0;
+				recorremina(i-1, j , i+1, j+1, c, x);
+				d[i,j]:= x + d[i,j];
+			   
+			[]  i == N-1 /\ (0 < j /\ j < M) ->
+				x:= 0;
+				recorremina(i-1 , j-1, i, j+1, c, x);
+				d[i,j]:= x + d[i,j];
+				
+			[] 	i == N-1 /\ j == 0 ->
+				x:=0;
+				recorremina(i-1, j , i, j+1, c, x);
+				d[i,j]:= x + d[i,j];
+				
+			[]  i == N-1 /\ j == M-1 ->
+				x:=0;
+				recorremina(i-1 , j-1, i, j, c, x);
+				d[i,j]:= x + d[i,j];
+				
+			[]  j == M-1 /\  (0<i /\ i<=N) ->
+				x:=0;
+				recorremina(i-1,j-1,i+1,j,c,x);
+				d[i,j]:= x + d[i,j];
+				
+			[]  i == 0 /\ j == M-1 ->
+				x:=0;
+				recorremina(i,j-1,i+1,j,c,x);
+				d[i,j]:= x + d[i,j];
+				
+			[] otherwise ->
+				x:=0;
+				recorremina(i-1,j-1,i+1,j+1,c,x);
+				d[i,j]:= x + d[i,j];
+				
+			fi;
+		[]	c[i,j] == true ->
+			d[i,j]:= -1
+		fi;
+		j:=j+1;
+		od;
+	i:=i+1;
+	od;
+	
+	]|
+    
+
+    
+// ------------- Procedimiento para las lecturas del jugador. Al momento de ingresar las coordenadas X y Y -----------
+    
+proc lectura_jugador(in j1: char, in j2: char,out j3: int,out j4:int,inout c:int)
+{pre true pre} 
+{post true post}
+|[    
+    c:=c+1;
+
+    writeln("Ingrese las coordenadas de su jugada");
+    writeln("En X");
+        read(j2);
+    writeln("En Y");
+        read(j1);
+        if  j1 == '0' ->
+            j3:= 0;
+        []  j1 == '1' ->
+            j3:= 1;
+        []  j1 == '2' ->
+            j3:= 2
+        []  j1 == '3' ->
+            j3:= 3
+        []  j1 == '4' ->
+            j3:= 4
+        []  j1 == '5' ->
+            j3:= 5
+        []  j1 == '6' ->
+            j3:= 6
+        []  j1 == '7' ->
+            j3:= 7
+        []  j1 == '8' ->
+            j3:= 8
+        []  j1 == '9' ->
+            j3:= 9
+        []  j1 == 'a' ->
+            j3:= 10
+        []  j1 == 'b' ->
+            j3:= 11;
+        []  j1 == 'c' ->
+            j3:= 12
+        []  j1 == 'd' ->
+            j3:= 13
+        []  j1 == 'e' ->
+            j3:= 14
+        []  j1 == 'f'  ->
+            j3:= 15
+		[]  otherwise ->
+		writeln("Jugada no valida, intente de nuevo")
+        fi;
+        if  j2 == '0' ->
+            j4:= 0;
+        []  j2 == '1' ->
+            j4:= 1;
+        []  j2 == '2' ->
+            j4:= 2
+        []  j2 == '3' ->
+            j4:= 3
+        []  j2 == '4' ->
+            j4:= 4
+        []  j2 == '5' ->
+            j4:= 5
+        []  j2 == '6' ->
+            j4:= 6
+        []  j2 == '7' ->
+            j4:= 7
+        []  j2 == '8' ->
+            j4:= 8
+        []  j2 == '9' ->
+            j4:= 9
+        []  j2 == 'a' ->
+            j4:= 10
+        []  j2 == 'b' ->
+            j4:= 11;
+        []  j2 == 'c' ->
+            j4:= 12
+        []  j2 == 'd' ->
+            j4:= 13
+        []  j2 == 'e' ->
+            j4:= 14
+        []  j2 == 'f' ->
+            j4:= 15
+		[] otherwise ->
+			writeln("Jugada no valida, intente de nuevo")
+        fi
+  
+]|
+    
+
+// ------- Evalua todos los casos (ESQUINA,BORDES Y MEDIO) ------------------
+// N: Tamaño fila, M: Tamaño columna, j3: Coordenada en X y j4 en Y. destapado: Matriz con los valores correspondientes en cada casilla. Tapado: Matriz con valores '#' en cada casilla, k: un entero que nos servirá para la cota en el proceso recursivo    
+// La matriz "tapado" comenzará con los valores '#' inicialmente, y a medida que el juego avanza, todos sus valores se irán intercambiando por los valores de la matriz "destapado"
+proc descubre_celdas(in N: int, in M:int, in j3: int, in j4: int,in destapado: array[1000,1000] of char, ref tapado: array[1000,1000] of char,inout k :int)
+{pre true pre}
+{post true post}
+{bound (N*M)-k bound}
+|[
+    var i,j: int; 
+    i,j:= j3,j4;
+
+    // Primero veamos si la casilla a evaluar está tapada o no. 
+    // En caso de estar tapada, entonces analizaremos que valor tiene y dependiendo de este vamos a ejecutar las acciones necesarias para destaparla
+    
+    if tapado[i,j] != '#' ->
+            skip
+    [] tapado[i,j] == '#' ->
+     	 if destapado[i,j] == '*' ->
+            skip
+    
+      	[] destapado[i,j] != '*' /\ destapado[i,j] != ' ' ->
+    
+        tapado[i,j]:= destapado[i,j];
+        k:=  k+1;
+     
+    	[] destapado[i,j] == ' ' ->
+            tapado[i,j]:= destapado[i,j];
+        	k:=  k+1; 
+
+        	// Luego de destapar el valor de la coordenada i y j.
+        	// Procedemos a analizar los posibles casos del comportamiento y las coordenadas alrededor válido para i y j        
+            
+            if i == 0 ->
+                    if j == 0 ->              
+                    descubre_celdas(N,M,0,1,destapado,tapado,k);     
+                    descubre_celdas(N,M,1,1,destapado,tapado,k); 
+                    descubre_celdas(N,M,1,0,destapado,tapado,k);                     
+    
+			        [] (0 < j /\ j < M) ->
+                
+                    descubre_celdas(N,M,i,j+1,destapado,tapado,k); 
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k);              
+                    descubre_celdas(N,M,i+1,j,destapado,tapado,k);                
+                    descubre_celdas(N,M,i+1,j+1,destapado,tapado,k);               
+                    descubre_celdas(N,M,i+1,j-1,destapado,tapado,k);               
+    
+                    []  j == M-1 ->
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k);    
+                    descubre_celdas(N,M,i+1,j-1,destapado,tapado,k);
+                    descubre_celdas(N,M,i+1,j,destapado,tapado,k);
+                    fi; 
+
+           [] i == N-1 ->
+                    
+
+			        if (0 < j /\ j < M) ->
+                    descubre_celdas(N,M,i,j+1,destapado,tapado,k); 
+                    descubre_celdas(N,M,i-1,j+1,destapado,tapado,k);   
+                    descubre_celdas(N,M,i-1,j,destapado,tapado,k);   
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k);
+                    descubre_celdas(N,M,i-1,j-1,destapado,tapado,k);
+	
+			         []  j == 0 ->
+                    descubre_celdas(N,M,i-1,j,destapado,tapado,k);            
+                    descubre_celdas(N,M,i-1,j+1,destapado,tapado,k);             
+                    descubre_celdas(N,M,i,j+1,destapado,tapado,k);
+	
+			         []  j == M-1 ->			
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k);
+                    descubre_celdas(N,M,i-1,j,destapado,tapado,k);
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k); 
+                     fi;
+            [] (0 < i /\ i<=N-1)  ->
+                    
+                    if j != 0  ->		
+                    
+                    descubre_celdas(N,M,i-1,j,destapado,tapado,k);        
+                    descubre_celdas(N,M,i-1,j+1,destapado,tapado,k);
+                    descubre_celdas(N,M,i,j+1,destapado,tapado,k);
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k);               
+                    descubre_celdas(N,M,i-1,j-1,destapado,tapado,k); 
+					descubre_celdas(N,M,i+1,j,destapado,tapado,k);
+					
+					
+			        [] j == 0 ->
+                    descubre_celdas(N,M,i-1,j,destapado,tapado,k);
+                    descubre_celdas(N,M,i-1,j+1,destapado,tapado,k) ;          
+                    descubre_celdas(N,M,i,j+1,destapado,tapado,k);
+                    descubre_celdas(N,M,i+1,j+1,destapado,tapado,k);            
+                    descubre_celdas(N,M,i+1,j,destapado,tapado,k);
+                    fi;
+                    
+			[] 	i != 0 /\ j != 0 /\ i != N - 1 /\ j != M-1 ->				
+                    descubre_celdas(N,M,i-1,j-1,destapado,tapado,k);           
+                    descubre_celdas(N,M,i-1,j,destapado,tapado,k);
+                    descubre_celdas(N,M,i-1,j+1,destapado,tapado,k);            
+                    descubre_celdas(N,M,i,j-1,destapado,tapado,k);
+                    descubre_celdas(N,M,i,j+1,destapado,tapado,k);
+                    descubre_celdas(N,M,i+1,j-1,destapado,tapado,k);
+                    descubre_celdas(N,M,i+1,j,destapado,tapado,k);
+                    descubre_celdas(N,M,i+1,j+1,destapado,tapado,k);
+           
+           
+            fi; 
+        fi;
+      fi;
+]|
+
+// -------------------- Va destapando las minas ----------------------------
+
+proc victoria(in tapado: array[1000,1000] of char,in T: int,out sigue_jugando: boolean,in N:int,in M:int)
+{pre true pre}
+{post true post}
+|[
+    var i,j,c:int;
+    i,c:=0,0;
+    sigue_jugando:= true;
+
+    // Si las posiciones de las casillas tapadas (con valor '#') son iguales a la cantidad de minas en el juego, entonces eso quiere decir que haz descubierto todas las casillas diferentes a las bombas y por lo tanto ganaste el juego
+    {inv true inv}
+    {bound N-i bound}
+    do i<N ->
+        j:= 0;
+        {inv /* (% forall k:int| 0<=k /\ k<j| tapado[i,j] == '#' ==> c == c+1 %) /\ 0<=j /\ j<M */ true inv}
+        {bound M-j bound}
+        do j<M ->
+            if tapado[i,j] == '#' ->
+                c:=c+1
+            [] tapado[i,j] != '#' ->
+                skip
+            fi;	
+        j:= j+1
+        od;
+    i:=i+1;
+    od;
+    
+    if c == T ->
+        writeln("¡¡¡¡FELICITACIONES!!!! HAZ GANADO. DERROTASTE EL PLAN DEL GENERAL CARITA FELIZ");
+        sigue_jugando:= false
+    [] c != T ->
+        skip
+    fi;     
+    
+]|
+ 
+// ---------- ESTE PROCEDIMIENTO MOSTRARÁ TODAS LAS MINAS QUE HABRÁ EN EL TABLERO ----------   
+proc muestra_minas(in N:int, in M:int,ref destapado: array[1000,1000] of char,ref tapado: array[1000,1000] of char)
+{pre true pre}
+{post true post}
+|[
+    var i,j: int;
+    i:=0;
+    {inv true inv}
+    {bound N-i bound}
+    do i<N ->
+        j:=0;
+        {inv /*(% forall k:int| 0<=k /\ k<j| (destapado[i,j] == '*') ==> tapado[i,j] == destapado[i,j] %) /\ 0<=j /\ j<M */ true inv}
+        {bound M-j bound}
+        do j<M ->
+        if destapado[i,j] == '*' ->
+            tapado[i,j]:= destapado[i,j]
+        [] destapado[i,j] != '*' ->
+            skip
+        fi;        
+        j:=j+1;
+        od;
+    i:=i+1;
+    od  
+    
+]|
+ 
+// ------- UNA VEZ QUE EL USUARIO INGRESE LAS COORDENADAS X y Y, COMENZAREMOS LA DINÁMICA DEL JUEGO ------------
+proc destapa_minas(out sigue_jugando: boolean,in j3: int, in j4: int,in N:int,in M:int,inout tapado: array[1000,1000] of char, inout destapado: array[1000,1000] of char,in T: int,in t: int)
+{pre true pre}
+{post true post}
+|[     
+       var i,j:int;
+
+       //Aquí tendremos dos condiciones en caso de que el usuario haya ingresado las coordenadas correspondientes o no a la casilla donde se encuentra una mina. En caso de ser así pondremos fin al juego y mostraremos la posición de las minas restantes.
+
+               if destapado[j3,j4] == '*' ->
+                sigue_jugando:= false;
+                muestra_minas(N,M,destapado,tapado);
+                tapado[j3,j4]:='!';
+                writeln("General Carita Feliz: Jajajaja! Haz explotado! 8)");
+                bordes(N,M,tapado);
+            [] destapado[j3,j4] != '*'  ->
+               descubre_celdas(N,M,j3,j4,destapado,tapado,t);
+               bordes(N,M,tapado);
+               victoria(tapado,T,sigue_jugando,N,M)
+            fi     
+    
+]|
+
+
+proc lectura2rob(out sigue_jugando: boolean,in j3: int, in j4: int,in N:int,in M:int,ref tapado: array[1000,1000] of char,ref destapado: array[1000,1000] of char,in T: int,in j1: char,in j2:char)
+{pre true pre}
+{post true post}
+|[
+    
+    var i,t,c:int;
+    
+    // Este ciclo representa toda la dinámica del juego.
+
+    sigue_jugando:= true;
+        i:= 0;
+        {inv /* (% forall k: int| 0<= k /\ k<= i| j3<N /\ j4 < N ==> (tapado[j3,j4] == '#' ==> t == t+1  ) \/ tapado[j3,j4] != '#' %) /\ 0<= i /\ i<1000*/ true inv}
+        {bound 1000 - i bound}
+        do i<1000 /\ sigue_jugando ->
+            lectura_jugador(j1,j2,j3,j4,c); 
+            
+        // En caso de ingresar las coordenadas del valor de una casilla descubierta, entonces le direomos al usuario que esto ya fue ingresado.   
+            if j3 <  N \/ j4 < M ->
+               
+                 if tapado[j3,j4] == '#' ->
+                     t:= t+1;
+                     destapa_minas(sigue_jugando,j3,j4,N,M,tapado,destapado,T,t);
+                 [] tapado[j3,j4] != '#' ->
+                    writeln("No puede seleccionar una casilla descubierta, intente otra vez");
+                    bordes(N,M,tapado)
+                 fi;
+            [] j3 >= M \/ j4 >= N ->
+                writeln("No se puede ejecutar esa jugada, vuelva a intentar");
+                 bordes(N,M,tapado);
+            fi;
+            i:=i+1;
+        od;
+]|
+main |[
+	// PRECONDICIONES 
+	// Variables basicas
+	var i,j:int;
+	// Matrices 
+	// Cantidad de minas alrededor de cada celda
+	var matriz_minas: array[400, 400] of int;
+	// Posiciones descubiertas
+	var matriz_descubiertas: array[1000, 1000] of boolean;
+	// Posiciones de las minas
+	var matriz_posminas: array[400, 400] of boolean;
+	var matriz_posminaspre: array[400,400] of int;
+	// Dimensiones del tablero y cantidad de minas
+	var valoresmatriz : array[400] of int;
+	var matriztemp: array[400] of int;
+    // Matriz final de caracteres
+    var matriz_char: array[1000,1000] of char;
+    // Destapada
+    var matriz_dest: array[1000,1000] of char;
+	var N,M,T,X0: int;
+	// Variables para la semilla
+	var valid_coprimos: boolean;
+	var x0: int;
+	var x: array[100] of int;
+	var m:=134456  : int;
+	var a:=8121:int;
+	var c:= 28411:int;
+	// Variables de prueba
+	var d: array[100,100] of int;
+	var e: array[100,100] of boolean;
+	// Para parar el programa en el caso que se requiera
+	var stop: boolean;
+    // Jugadas
+    var j1,j2: char;
+    var j3,j4: int;
+    var sigue_jugando: boolean;
+    // Repetir el juego
+    var seguir_jugando,aux: boolean;
+    var continuar: char;
+	// Entrada de datos por parte del usuario. Definimos las dimensiones del tablero
+	
+i:=0;
+seguir_jugando:= true;
+{inv true inv}
+{bound 1000-i bound}
+do i<1000 /\ seguir_jugando -> 
+    lecturarob(N,M,T,stop);
+    if stop == true ->
+	   // Proceso de generacion el tablero
+	   writeln("Introduzca un numero de semilla para generar el tablero: ");
+	   read(x0);
+	   fisher(matriztemp,M,N,valoresmatriz,x0,T);	
+	   // Transformacion del arreglo unidimensional a bidimensional y transformacion a booleanos
+	   transformacion(N,M,valoresmatriz,matriz_posminas);	
+	   // Calculo de numero de minas adyacentes
+	   minasalrededor(N,M,matriz_posminas,matriz_minas);	
+         tablero(N,M,matriz_minas,matriz_dest);    
+	   // Generacion final del tablero 
+        //  writeln("El tablero inicial sera");    
+            tableroinicial(N,M,matriz_char);
+            bordes(N,M,matriz_char);
+			
+            writeln("Ahora debera ingresar las jugadas de su coordenadas que va desde 0 a 9 y para representar de 10 a 16 seran con las letras senaladas (de    A a F).");
+        // Ciclo para que el jugador vaya poniendo las jugadas hasta  que pierda o gane 
+                  
+                     lectura2rob(sigue_jugando,j3,j4,N,M,matriz_char,matriz_dest,T,j1,j2);
+					 
+                    j:=0;
+                    aux:= true;
+					seguir_jugando:= true;
+                    {inv  /* (% forall k: int|  0<=k /\ k<= j | continuar =='s' \/ continuar == 'S' ==> aux == false %)  /\ (% forall k:int| 0<=k /\ k<=j | continuar =='n' \/ continuar == 'N' ==> aux == false /\ seguir_jugando == false %) /\ 0<=j /\ j<=1000 */ true inv}
+                    {bound 1000-j bound}
+                    do j<1000 /\ aux ->
+                       writeln("Quiere seguir jugando(Ingrese s para si o n para no)");
+                     read(continuar);
+                     if continuar == 's' \/ continuar == 'S' ->
+                        i:=i+1;
+                         aux:=false;
+                        j:=j+1;
+                        
+                        
+                     [] continuar == 'n' \/  continuar == 'N' ->
+                        seguir_jugando:= false;
+                        aux:=false;
+						i:=i+1;
+						j:=j+1;
+						
+						
+                        
+                     [] continuar != 'n' /\ continuar != 'N' /\ continuar !='S' /\ continuar != 's' ->
+                        writeln("Ingrese de nuevo s o n");
+                        j:=j+1
+				
+                     fi;
+                    od;
+
+	// writeln("El tablero destapado será de la forma: ");
+	//tablero(N,M,matriz_minas,matriz_char); */
+    // bordes(N,M,matriz_minas,matriz_char);
+[] stop == false ->
+	writeln("");
+	writeln("No se puede ejecutar el programa");
+                    aux:= true;
+			        seguir_jugando:= true;
+                     j:=0;
+                    {inv /* (% forall k: int|  0<=k /\ k<=j | continuar =='s' \/ continuar == 'S' ==> aux == false %)  /\ (% forall k:int| 0<=k /\ k<=j | continuar =='n' \/ continuar == 'N' ==> aux == false /\ seguir_jugando == false %) /\ 0<=j /\ j<1000 */ true inv}
+                    {bound 1000-j bound}
+                    do j<1000 /\ aux ->
+                       writeln("Quiere seguir jugando(Ingrese s para si o n para no)");
+                     read(continuar);
+                     if continuar == 's' \/ continuar == 'S' ->
+                        i:=i+1;
+                        j:=j+1;
+                        aux:= false;
+	
+                        
+                     [] continuar == 'n' \/  continuar == 'N' ->
+                        seguir_jugando:= false;
+                        aux:=false;
+						i:=i+1;
+						j:=j+1;
+                        
+                     [] continuar != 'n' /\ continuar != 'N' /\ continuar !='S' /\ continuar != 's' ->
+                        writeln("Ingrese de nuevo s o n");
+                        j:=j+1
+                     fi;
+                    od;
+fi
+
+od;
+]|
+end

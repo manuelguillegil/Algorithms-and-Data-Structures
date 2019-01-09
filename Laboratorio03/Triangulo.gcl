@@ -1,0 +1,35 @@
+program Triangulo begin
+main |[
+
+	var a, b, c: float;
+	var valid: boolean;
+
+	// Escribimos y leemos los valores de las tres longitudes
+	writeln("Escriba el valor de un longitud a");
+	read(a);
+	writeln("Escriba el valor de una longitud b");
+	read(b);
+	writeln("Escriba el valor de una longitud c");
+	read(c);
+
+	{ (a > 0.0) /\ (b > 0.0) /\ (c > 0.0) };
+
+	//Determinamos si dado las tres longitudes forman un Triangulo, mediante el Teorema de desigualdad triangular
+	valid:= (a + b > c) /\ (a + c > b) /\ (b + c > a);
+
+	//Imprimimos si dado las tres longitudes, es un triangulo válido o no
+	if valid==true -> writeln("Es un triangulo")
+	[] valid!=true-> writeln("No es un triangulo")
+	fi;
+
+	//Imprimimos si dado tres lados de un triangulo, es equilátero, isóceles o escaleno
+	if (valid==true) /\ (a == b) /\ (a == c) /\ (b == c) -> writeln("Y además es un triangulo equilátero")
+	[] (valid==true) /\ (a == b)  \/ (a == c) \/ (b == c) -> writeln("Y además es un triángulo isóceles")
+	[] (valid==true) /\  (a != b) /\ (b != c) /\ (a !=c) -> writeln("Y además es un triángulo escaleno")
+	[] (valid!=true) -> writeln("No se puede hacer más nada")
+	fi;
+
+]|
+end
+
+

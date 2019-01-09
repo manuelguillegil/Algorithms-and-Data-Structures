@@ -1,0 +1,32 @@
+program ContarDivisores begin
+main |[
+	// Declaración de variables n: número, s: divisores y i: números de divisores
+	
+	var n, i, s : int;
+	write("Escriba un número n: ");
+	read(n)
+
+	{n >= 3}	
+	
+	; i, s := 0, 2
+
+	// Invariante
+	;  {inv i == (% count k: int | 2 <= k /\ k < s | n mod k == 0 %) /\ s >= 2 /\ s <= n inv}
+	
+	// Cota	   
+	{bound n-s bound}
+	
+	do (s < n) -> if n mod s == 0 -> i := i + 1
+	[] n mod s != 0 -> skip 
+	fi;
+	s:= s + 1;
+	od;
+	
+	{ i == (% count k: int | 2 <= k /\ k < s | n mod k == 0 %) /\ s >= 2 /\ s <= n };
+	writeln("El número  ", n, "  tiene  ", i, "   divisores");
+	
+	
+
+	]|
+end
+

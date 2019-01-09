@@ -1,0 +1,20 @@
+program Suma begin
+main |[
+	//Definimos la variable n y suma 
+	var n: int;
+	var suma:int;
+
+	//Imrpimimos, leemos y condicionamos la variable n el cual debe ser mayor o igual a 1
+	writeln("Escriba un número cualquiera");
+	read(n);
+	{n>=1};
+
+	//Calculamos la suma del número n a partir de 1 y luego comprobamos que la fórmula esté correcta
+	writeln("Ahora calcularemos la suma de ese número a partir de 1");
+	suma:=(n*(n+1))/2;
+	{suma==((n*(n+1))/2)};
+
+	//Imprimimos el resultado
+	writeln(suma);
+]|
+end

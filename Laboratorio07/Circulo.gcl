@@ -1,0 +1,30 @@
+program BusquedaLineal begin
+
+proc buscar(in n:int, in a: array[100] of int, in e:int, out pos:int)
+	{pre (0 n <= 100) /\ (% exist i:int | 0 <= i < pos | a[i] == e %) pre}
+	{post a[pos] == e /\ not(% exist i: int | 0 <= i < pos | a[i] == e %) /\ (% forall i:int | 0 <= i < n | i >= pos %) post}
+
+	|[
+		var i:= 0 : int;
+		var con:= false : boolean;
+		
+		{inv con == (% exist i:int | 0 <= k < i | a[k] == e %) inv}
+		{bound n-i bound}
+			do i < n ->
+				i:= i + 1; 
+				if not(con) /\ a[i] == e -> con:= true; pos:= i
+				[] con \/ a[i] != e -> skip
+				fi;
+			od;
+		
+	]|
+
+
+
+main |[
+		
+		writeln("Vayalo");
+		
+
+]|
+end

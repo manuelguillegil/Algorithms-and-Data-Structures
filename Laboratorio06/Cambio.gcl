@@ -1,0 +1,22 @@
+program Cambio begin
+
+proc cambio(inout a : int, inout b : int)
+	var  z:= a : int;
+	var  w := b : int;
+	{pre true pre}
+	{post a == w /\ b == z post}
+	|[
+			a, b:= b, a;
+	]|
+
+main
+|[ var x, y : int;
+	writeln("Vamos hacer un cambio de variable: ");
+	write("a: ");
+	read(x);
+	write("b: ");
+	read(y);
+	cambio(x,y);
+	writeln("a es igual a : ",x," y b es igual a : ", y);
+]|
+end

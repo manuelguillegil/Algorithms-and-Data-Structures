@@ -1,0 +1,37 @@
+program Raices begin
+
+func mayorRaiz(a : float,b : float,c : float)
+	{pre true pre}
+	{post mayorRaiz == a*(x*x) + b*x + c  post}
+
+	|[
+		a*(x*x) + b*x + c 
+	]|
+
+
+
+main |[
+		var n := 1000 : int;
+		var a : float;
+		var b : float;
+		var c : float;
+		var x := 0 : int; 
+		var y : int;
+
+		read(a);
+		read(b);
+		read(c);
+
+		{inv true inv}
+		{bound n - x bound}
+			do i < n ->
+					if mayorRaiz(a,b,c) == 0 -> y:= mayorRaiz(a,b,c)
+					[] mayorRaiz(a,b,c) != 0 -> skip
+					fi;
+					x:= x + 1;
+		od;
+
+		writeln(y);
+
+]|
+end

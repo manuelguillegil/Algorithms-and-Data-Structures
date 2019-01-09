@@ -1,0 +1,22 @@
+program FactRec begin
+
+func factorial(n : int) -> int
+{pre n >= 0 pre}
+{post factorial == (% product i : int | 1 <= i /\ i <= n | i %) post}
+{bound n bound}
+|[
+	if n == 0 -> 1
+	[] n > 0 -> n*factorial(n-1)
+	fi
+]|
+
+main |[
+	var n : int;
+
+	writeln("Escriba un número: ");
+	read(n);
+	write(n,"! = ", factorial(n));
+	writeln();
+
+]|
+end

@@ -1,0 +1,27 @@
+program SumaCuadrados begin
+
+func SumaCuadrados(a: int, b: int) -> int
+	{pre true pre}
+	{post SumaCuadrados == a*a + b*b post}
+
+	|[
+
+	a*a + b*b
+		
+
+
+	]|
+
+
+main |[
+		var a : int;
+		var b : int;
+
+		writeln("Valor de a y b: ");
+		read(a);
+		read(b);
+		SumaCuadrados(a,b);
+		
+		
+]|
+end

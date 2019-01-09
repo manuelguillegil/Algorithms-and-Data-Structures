@@ -1,0 +1,25 @@
+program SumaArreglo begin
+main |[
+	var a: array[100] of int;
+	var i:=0 :  int;
+	var n: int;
+	var suma: int;
+
+	writeln("Escriba un número n");
+	read(n);
+
+	{inv (0 <= i) /\ (i <= n) /\ suma == (% sum k : int | 0 <= k /\ k < i | a[k] %)inv}
+	{bound n - i bound}
+
+
+	do i < n -> 
+		read(a[i]);
+		suma:= suma + a[i];
+		i:= i + 1;
+	od;
+	writeln("La suma de los elementos asignados es: ", suma);
+
+	{suma == (% sum k : int | 0 <= k /\ k < i | a[k] %)}
+]|
+end
+

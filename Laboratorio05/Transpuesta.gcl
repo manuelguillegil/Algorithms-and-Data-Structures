@@ -1,0 +1,99 @@
+program Transpuesta begin
+
+main
+|[
+ 	var a: array[100, 100] of int;
+ 	var trans : array [100, 100] of int;
+ 	var i: int;
+ 	var j: int;
+ 	var n: int;
+ 	var m: int;
+
+ 	writeln("Dado una matriz nxm. Escribir el número de filas n: ");
+ 	read(n);
+ 	writeln("Escribir el número de columnas m: " );
+ 	read(m);
+
+ 	i:= 0;
+
+ 		{true}
+
+	writeln("Escriba los valores de cada fila n: ");
+
+ 		{inv (0 <= i) /\ (i <= n) inv}
+ 		{bound n - i bound}
+
+ 	do i < n ->
+ 			j:= 0;		
+
+				{inv (0 <= j) /\ (j <= n) inv}
+ 				{bound m - j bound}
+
+ 				do 
+ 			
+ 					j < m -> 
+ 						read(a[i,j]);
+ 						j:= j + 1;
+ 				od;
+
+ 			i:= i + 1;
+
+ 	od;
+
+ 	i:= 0;
+ 	writeln("La matriz es: ");
+
+ 	{inv (0 <= i) /\ (i <= n)  inv}
+ 	{bound n - i bound}
+
+ 	do i < n ->
+ 		j:= 0;
+
+ 		{inv (0 <= j) /\ (j <= m) inv}
+ 		{bound m - j bound}
+
+ 		do 
+ 			j < m ->
+ 				write(a[i, j]);
+ 				write("  ");
+ 				j:= j + 1;
+ 		od;
+ 		writeln(" ");
+ 		i:= i + 1;
+ od;
+
+ 	writeln("La matriz transpuesta es: ");
+ 	i:= 0;
+
+ 	{inv (0 <= i) /\ (i <= n) inv}
+ 	{bound n - i bound}
+
+ 	do 
+ 		i < n ->
+ 			j:=0;
+
+ 			{inv (0 <= j) /\ (j <= m) inv}
+ 			{bound m - j bound}
+
+ 			do
+ 				j < m ->
+ 					trans[j, i]:= a[i, j];
+ 					write(trans[j, i]," ");
+ 					j:= j + 1;
+ 			od;
+
+ 			writeln();
+ 			i:= i + 1;
+
+ od;
+
+
+
+
+
+
+ 	{(% forall f : int | 0<= f /\ f<n |(% forall g : int| 0 <= g /\ g<m | a[f,g] == trans[g,f] %)%)}
+
+
+]| 
+end

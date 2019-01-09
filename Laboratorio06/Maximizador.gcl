@@ -1,0 +1,71 @@
+program Maximizador begin
+
+proc maximizar(inout n : int, inout a : array[100] of int, inout c : int)
+	var i := 0 : int;
+	var b : int;
+	{pre n >=0 pre}
+	{post (% forall k : int | (k >= 0) /\ (k <= n) | true %) post}
+
+	|[
+
+	c:= a[i];
+
+
+		{inv (i >= 0 ) /\ (i <= n) inv}
+		{bound n - i bound}
+		do i < n ->
+			i:= i + 1;
+				if c <= a[i] -> c:= a[i]
+				[] c > a[i] -> skip
+				fi;
+		od;
+
+		i:= 0;
+
+		{inv (i >= 0 ) /\ (i <= n) inv}
+		{bound n - i bound}
+		do i < n ->
+			a[i]:= c;
+			i:= i + 1;
+		od;
+
+		
+
+
+	]|
+
+
+main |[
+		var a : array[100] of int;
+		var n : int;
+		var i := 0 : int;
+		var c : int;
+
+		writeln("Dado un arreglo n, vamos a revertir los valores en las posiciones. Introducir el valor de n: ");
+		read(n);
+		{n >= 0}
+
+		{inv (i >= 0 ) /\ (i <= n) inv}
+		{bound n - i bound}
+		
+		do i < n ->
+			write("Introducir valor de a",i,": "); 
+			read(a[i]);
+			i:= i + 1;
+	 	od;
+
+	 maximizar(n,a,c);
+	 writeln();
+	 i:= 0;
+
+		{inv (i >= 0 ) /\ (i <= n) inv}
+		{bound n - i bound}
+		do i < n ->
+				write(a[i]," ");
+				i:= i + 1;
+		od;
+		writeln();
+		writeln(c);
+		writeln();
+]|
+end

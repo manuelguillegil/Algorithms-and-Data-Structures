@@ -1,0 +1,18 @@
+program Cubo begin
+main |[
+	//Definimos las variables "n" y "v" que corresponden a lados y volumen del cubo respectivamente
+	var n:int;
+	var v:int;
+	//Definimos la condición que el lado exista
+	{n>=0};
+	//Imprimimos, leemos y calculamos el volumen del cubo
+	writeln("Inserte el valor del lado de un cubo");
+	read(n);
+	v:=n*n*n;
+	//Comprobamos que la fórmula esté correcta
+	{v==n*n*n};
+	//Imprimimos el resultado
+	writeln(v)
+]|
+end
+	

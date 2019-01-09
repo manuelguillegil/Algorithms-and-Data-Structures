@@ -1,0 +1,19 @@
+program TemperaturaInv begin
+main|[
+	//Definimos las variables "c" y "f"
+	var c:float;
+	var f:float;
+
+	//Imprimimos y  leemos la variable c y condicionamos la variable f
+	writeln("Asigne el valor a c");
+	read(c);
+	{f>=-273.15};
+
+	//Realizamos la conversión que queremos llegar y comprobamos la fórmula
+	f:=(9.0*c)/5.0+32.0;
+	{f==(9.0*c)/5.0+32.0};
+
+	//Imprimimos finalmente el resultado
+	writeln(f);
+]|
+end

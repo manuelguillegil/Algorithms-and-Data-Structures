@@ -1,0 +1,37 @@
+program Perfeccion begin
+main |[
+	// Declaración de variables n: número, s: divisores y i: números de divisores
+	
+	var n, i, s, c : int;
+	write("Escriba un número n: ");
+	read(n)
+
+	{n >= 3}	
+	
+	; i, s, c := 0, 1, 0
+
+	// Invariante
+	;  {inv i == (% count k: int | 1 <= k /\ k < s | n mod k == 0 %) /\ s >= 1 /\ s <= n inv}
+	
+	// Cota	   
+	{bound n-s bound}
+	
+	do (s < n) -> if n mod s == 0 -> i := i + 1; c:= c + s; s:= s + 1;
+	[] n mod s != 0 -> s:= s + 1 
+	fi;
+	od;
+	
+	{ i == (% count k: int | 1 <= k /\ k < s | n mod k == 0 %) /\ s >= 1 /\ s <= n };
+	writeln("El número  ", n, "  tiene  ", i, "   divisores");
+
+	if c == n -> writeln(n ," Es un número perfecto")
+	[] c != n -> writeln(n ," No es un número perfecto")
+	fi;
+
+	
+	
+	
+
+	]|
+end
+

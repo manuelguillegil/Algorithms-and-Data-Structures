@@ -1,0 +1,24 @@
+program SumaNumeros begin
+main |[
+
+	 var n, i, s : int
+	; write("Introduzca el valor de n: ")
+	; read(n)
+	
+	{ n >= 1 }
+
+	; i, s := 1, 0
+
+	;  {inv s == (% sum k : int | 1 <= k /\ k < i | k %) /\ 1 <= i /\ i <= n + 1 inv}
+	   {bound n + 1 - i bound}
+	
+	do i <= n -> 
+		s, i := s + i, i + 1
+	od
+	
+	{ s == (% sum k : int | 1 <= k /\ k <= n | k %)};
+
+	writeln("La suma de los primeros ", n, " números es ", s);
+	]|
+end
+
